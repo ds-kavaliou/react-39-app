@@ -1,42 +1,51 @@
 import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
+import { cn } from "src/lib";
+
 import { useSearchCharactersQuery } from "src/features/characters/api";
+import { selectFavoriteIds, remove, add } from "src/features/favorites/slice";
 import { Card, Grid } from "src/features/characters/components";
 
 export function SearchPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const favIds = [1, 3, 7]; // select from favorites feature store
+  const dispatch = useDispatch();
+  const favIds = useSelector(selectFavoriteIds);
 
-  const { data: characters = [] } = useSearchCharactersQuery(
-    Object.fromEntries(params)
+  const {
+    data: characters = [],
+    error,
+    isFetching,
+    isLoading,
+  } = useSearchCharactersQuery(Object.fromEntries(params));
+
+  const isInFavorites = useCallback((id) => favIds.includes(id), [favIds]);
+  const toggleFavoriteCharacter = useCallback(
+    (id) => (isInFavorites(id) ? dispatch(remove(id)) : dispatch(add(id))),
+    [dispatch, isInFavorites]
   );
 
-  const handler = useCallback(
-    (e) => {
-      const intent = e.target.dataset?.intent;
-      const id = e.target.dataset?.id;
-
-      switch (intent) {
-        case "toggle-fav":
-          return console.log("dispatch favorite action with ID", id);
-        case "navigate":
-          return navigate(`/characters/${id}`);
-        default:
-          return;
-      }
-    },
+  const navigateToCharacterPage = useCallback(
+    (id) => navigate(`/characters/${id}`),
     [navigate]
   );
-
-  const isInFavorites = (id) => favIds.includes(id);
 
   return (
     <section>
       <div className="container">
-        <Grid onClick={handler}>
+        <div className={cn("hidden", error && "block")}>
+          Sorry... We found nothing. Please change your filters
+        </div>
+        <div className={cn("hidden", isLoading && "block")}>Loading...</div>
+
+        <Grid
+          className={cn(error && "hidden", isFetching && "opacity-25")}
+          handler1={toggleFavoriteCharacter}
+          handler2={navigateToCharacterPage}
+        >
           {characters.map((item) => (
             <Card
               key={item.id}

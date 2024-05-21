@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { Badge, Button, Icon } from "src/components";
 
-export function Card({ item, isInFavorite }) {
+function CharactreCard({ item, isInFavorite }) {
   return (
     <div className="relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl">
       <div className="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl aspect-square">
@@ -12,11 +13,11 @@ export function Card({ item, isInFavorite }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2"
+          className="absolute top-2 right-2 rounded-full text-red-500 transition-all hover:bg-red-500/10 active:bg-red-500/30"
           data-intent="toggle-fav"
           data-id={item.id}
         >
-          <Icon name={isInFavorite ? "star-solid" : "star-outline"} />
+          <Icon name={isInFavorite ? "heart-solid" : "heart-outline"} />
         </Button>
       </div>
       <div className="p-4">
@@ -40,3 +41,5 @@ export function Card({ item, isInFavorite }) {
     </div>
   );
 }
+
+export const Card = memo(CharactreCard);
