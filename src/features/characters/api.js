@@ -20,10 +20,10 @@ const api = createApi({
     }),
     getManyById: build.query({
       query: (ids) => {
-        const search = ids.toString();
+        const search = ids.length === 0 ? "" : `[${ids.toString()}]`;
         return `/${search}`;
       },
-      transformResponse: (response) => response ?? [],
+      transformResponse: (response) => (response.info ? [] : response ?? []),
     }),
   }),
 });
