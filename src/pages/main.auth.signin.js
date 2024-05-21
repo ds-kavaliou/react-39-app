@@ -7,26 +7,9 @@ import { useFormik } from "formik";
 // yup
 import * as yup from "yup";
 // import css from "./RegisterForm.module.css";
+
 export function SignInPage() {
   const validationSchema = yup.object({
-    firstName: yup
-      .string()
-      .min(1, "Имя должно содержать минимум 1 букву")
-      .max(30, "Имя должно содержать максимум 30 букв")
-      .matches(
-        /^[A-Za-zА-Яа-яёЁ]+$/,
-        "Имя не должно содержать цифры и специальные символы"
-      )
-      .required("Ввод имени обязателен"),
-    lastName: yup
-      .string()
-      .min(1, "Фамилия должна содержать минимум 1 букву")
-      .max(30, "Фамилия должна содержать максимум 30 букв")
-      .matches(
-        /^[A-Za-zА-Яа-яёЁ]+$/,
-        "Фамилия не должна содержать цифры и специальные символы"
-      )
-      .required("Ввод фамилии обязателен"),
     email: yup
       .string()
       .email("Введите валидный email")
@@ -40,56 +23,28 @@ export function SignInPage() {
   });
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      const checkLocal = localStorage.getItem("users").split(";");
+      checkLocal.pop();
+      const checkEmail = checkLocal.map((item) => JSON.parse(item)).find((item) => item.email === values.email);
+      if (checkEmail) {
+        if (checkEmail.password === values.password) {
+          localStorage.setItem("authUser", JSON.stringify({name: checkEmail.firstName, auth: true}));
+          window.location = '/';}
+          else alert("Неправильный пароль!");
+      } else {alert("Пользователя с таким e-mail не существует");}
     },
   });
- 
-  
   
     return (
-      <div
-    
-       >
+      <div>
         <h2 className="mb-5">Добро пожаловать на сайт!</h2>
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                id="firstName"
-                name="firstName"
-                label="Имя"
-                variant="outlined"
-                fullWidth
-                value={formik.values.firstName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={
-                  formik.touched.firstName && Boolean(formik.errors.firstName)
-                }
-                helperText={formik.touched.firstName && formik.errors.firstName}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="lastName"
-                name="lastName"
-                label="Фамилия"
-                variant="outlined"
-                fullWidth
-                value={formik.values.lastName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-                helperText={formik.touched.lastName && formik.errors.lastName}
-              />
-            </Grid>
             <Grid item xs={12}>
               <TextField
                 id="email"
@@ -121,11 +76,10 @@ export function SignInPage() {
             </Grid>
             <Grid item xs={12}>
               <Button type="submit" variant="contained">
-                Зарегистрироваться
+                Войти
               </Button>
             </Grid>
           </Grid>
         </form>
-      </div>
-  )
+      </div>)
 }
