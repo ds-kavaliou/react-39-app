@@ -33,7 +33,7 @@ export function SignInPage() {
       const checkEmail = checkLocal.map((item) => JSON.parse(item)).find((item) => item.email === values.email);
       if (checkEmail) {
         if (checkEmail.password === values.password) {
-          localStorage.setItem("authUser", JSON.stringify({name: checkEmail.firstName, auth: true}));
+          localStorage.setItem("authUser", JSON.stringify({name: checkEmail.firstName, auth: true, email: checkEmail.email}));
           window.location = '/';}
           else alert("Неправильный пароль!");
       } else {alert("Пользователя с таким e-mail не существует");}

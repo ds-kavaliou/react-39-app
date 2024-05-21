@@ -52,7 +52,7 @@ export function SignUpPage() {
       else {
         const usersString = users + JSON.stringify(values) + ";";
         localStorage.setItem("users", usersString);
-        localStorage.setItem("authUser", JSON.stringify({name: values.firstName, auth: true}));
+        localStorage.setItem("authUser", JSON.stringify({name: values.firstName, auth: true, email: values.email}));
         window.location = '/';
       };
     },
