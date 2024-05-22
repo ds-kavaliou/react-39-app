@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Badge, Button, Icon } from "src/components";
 
-function CharactreCard({ item, isInFavorite }) {
+function CharactreCard({ item, isInFavorite, canInteract }) {
   return (
     <div className="relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl">
       <div className="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl aspect-square">
@@ -10,15 +10,17 @@ function CharactreCard({ item, isInFavorite }) {
           src={item.image}
           alt={item.name}
         />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 rounded-full text-red-500 transition-all hover:bg-red-500/10 active:bg-red-500/30"
-          data-intent="toggle-fav"
-          data-id={item.id}
-        >
-          <Icon name={isInFavorite ? "heart-solid" : "heart-outline"} />
-        </Button>
+        {canInteract && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 rounded-full text-red-500 transition-all hover:bg-red-500/10 active:bg-red-500/30"
+            data-intent="toggle-fav"
+            data-id={item.id}
+          >
+            <Icon name={isInFavorite ? "heart-solid" : "heart-outline"} />
+          </Button>
+        )}
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between gap-2 mb-4">
