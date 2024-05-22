@@ -12,7 +12,7 @@ export const signUpValidationSchema = yup.object({
     .required("Email is required"),
   password: yup
     .string()
-    .min(4, "Password must be at least 8 characters long")
+    .min(4, "Password must be at least 4 characters long")
     .required("Password is required"),
   confirm: yup
     .string()

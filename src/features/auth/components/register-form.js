@@ -7,7 +7,7 @@ const initialValues = {
   name: "",
   email: "",
   password: "",
-  confirmPassword: "",
+  confirm: "",
 };
 
 export function SignUpForm({ submit, serverError }) {
