@@ -7,12 +7,15 @@ import { cn } from "src/lib";
 import { selectFavoriteIds, remove, add } from "src/features/favorites/slice";
 import { useGetManyByIdQuery } from "src/features/characters/api";
 import { Grid, Card } from "src/features/characters/components";
+import { selectCurrentUser } from "src/features/auth/slice";
 
 export function FavoritesPage() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const favIds = useSelector(selectFavoriteIds);
+
+  const user = useSelector(selectCurrentUser);
 
   const { data: characters = [], isLoading } = useGetManyByIdQuery(favIds);
 
@@ -43,6 +46,7 @@ export function FavoritesPage() {
               key={item.id}
               item={item}
               isInFavorite={isInFavorites(item.id)}
+              canInteract={user !== null}
             />
           ))}
         </Grid>

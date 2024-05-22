@@ -4,9 +4,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { cn } from "src/lib";
 
+import { Card, Grid } from "src/features/characters/components";
 import { useSearchCharactersQuery } from "src/features/characters/api";
 import { selectFavoriteIds, remove, add } from "src/features/favorites/slice";
-import { Card, Grid } from "src/features/characters/components";
+import { selectCurrentUser } from "src/features/auth/slice";
 
 export function SearchPage() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export function SearchPage() {
 
   const dispatch = useDispatch();
   const favIds = useSelector(selectFavoriteIds);
+
+  const user = useSelector(selectCurrentUser);
 
   const {
     data: characters = [],
@@ -51,6 +54,7 @@ export function SearchPage() {
               key={item.id}
               item={item}
               isInFavorite={isInFavorites(item.id)}
+              canInteract={user !== null}
             />
           ))}
         </Grid>
