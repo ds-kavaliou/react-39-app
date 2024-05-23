@@ -1,4 +1,4 @@
-import { createListenerMiddleware, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const slice = createSlice({
   name: "favorites",
@@ -21,8 +21,8 @@ const slice = createSlice({
 
 export default slice;
 
-export const { remove, add } = slice.actions;
+export const { remove, add, init } = slice.actions;
 
-export const listener = createListenerMiddleware();
-
-export const selectFavoriteIds = (x) => x.favorites;
+export const selectFavoriteIds = (state) => state.favorites;
+export const selectIsInFavorites = (id) => (state) =>
+  state.favorites.includes(id);
