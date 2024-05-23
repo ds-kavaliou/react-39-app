@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     errorElement: <MainErrorPage />,
     children: [
       {
-        path: "",
+        id: "searchable",
         element: <SearchableLayout />,
         loader: searchableLayoutLoader,
         children: [
@@ -33,9 +33,7 @@ const router = createBrowserRouter([
           },
         ],
       },
-
       {
-        path: "",
         element: <AuthLayout />,
         children: [
           { path: "signin", element: <SignInPage /> },
@@ -43,12 +41,13 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "characters/:id", element: <CharacterPage /> },
-
       {
-        path: "",
         element: <ProtectedLayout />,
         children: [
+          {
+            path: "characters/:id",
+            element: <CharacterPage />,
+          },
           {
             path: "favorites",
             element: <FavoritesPage />,
