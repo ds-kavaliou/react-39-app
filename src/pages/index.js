@@ -5,7 +5,7 @@ export * from "./main.searchable";
 export * from "./main.searchable.index";
 export * from "./main.searchable.search";
 
-export * from "./main.character";
+export * from "./main.protected.character";
 
 export * from "./main.auth";
 export * from "./main.auth.signin";
