@@ -1,4 +1,4 @@
-import { createListenerMiddleware, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
@@ -20,7 +20,5 @@ const slice = createSlice({
 export default slice;
 
 export const { setCurrentUser, clearCurrentUser } = slice.actions;
-
-export const listener = createListenerMiddleware();
 
 export const selectCurrentUser = (state) => state.auth.user;

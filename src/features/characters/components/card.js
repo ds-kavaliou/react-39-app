@@ -1,7 +1,9 @@
 import { memo } from "react";
-import { Badge, Button, Icon } from "src/components";
 
-function CharactreCard({ item, isInFavorite, canInteract }) {
+import { Badge } from "src/components";
+import { cn } from "src/lib";
+
+function CharactreCard({ item, children }) {
   return (
     <div className="relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl">
       <div className="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl aspect-square">
@@ -10,17 +12,6 @@ function CharactreCard({ item, isInFavorite, canInteract }) {
           src={item.image}
           alt={item.name}
         />
-        {canInteract && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 rounded-full text-red-500 transition-all hover:bg-red-500/10 active:bg-red-500/30"
-            data-intent="toggle-fav"
-            data-id={item.id}
-          >
-            <Icon name={isInFavorite ? "heart-solid" : "heart-outline"} />
-          </Button>
-        )}
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between gap-2 mb-4">
@@ -29,19 +20,20 @@ function CharactreCard({ item, isInFavorite, canInteract }) {
           </p>
           <Badge title={item.species}>{item.species}</Badge>
         </div>
-        <div className="flex flex-col">
-          <Button
-            variant="secondary"
-            className="uppercase"
-            data-intent="navigate"
-            data-id={item.id}
-          >
-            Read More
-          </Button>
-        </div>
+        {children}
       </div>
     </div>
   );
 }
 
-export const Card = memo(CharactreCard);
+const Actions = ({ children, className, ...props }) => {
+  return (
+    <div className={cn("flex flex-col", className)} {...props}>
+      {children}
+    </div>
+  );
+};
+
+export const Card = memo(CharactreCard, (p, n) => p.id === n.id);
+
+Card.Actions = memo(Actions);

@@ -1,62 +1,53 @@
-import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link, useRouteLoaderData } from "react-router-dom";
 
+import { Button } from "src/components";
 import { cn } from "src/lib";
 
 import { Card, Grid } from "src/features/characters/components";
 import { useSearchCharactersQuery } from "src/features/characters/api";
-import { selectFavoriteIds, remove, add } from "src/features/favorites/slice";
+
+import { Favoritable } from "src/features/favorites/components";
+
 import { selectCurrentUser } from "src/features/auth/slice";
 
 export function SearchPage() {
-  const navigate = useNavigate();
-  const [params] = useSearchParams();
-
-  const dispatch = useDispatch();
-  const favIds = useSelector(selectFavoriteIds);
-
+  const params = useRouteLoaderData("searchable");
   const user = useSelector(selectCurrentUser);
-
   const {
     data: characters = [],
     error,
     isFetching,
     isLoading,
-  } = useSearchCharactersQuery(Object.fromEntries(params));
-
-  const isInFavorites = useCallback((id) => favIds.includes(id), [favIds]);
-  const toggleFavoriteCharacter = useCallback(
-    (id) => (isInFavorites(id) ? dispatch(remove(id)) : dispatch(add(id))),
-    [dispatch, isInFavorites]
-  );
-
-  const navigateToCharacterPage = useCallback(
-    (id) => navigate(`/characters/${id}`),
-    [navigate]
-  );
+  } = useSearchCharactersQuery(params);
 
   return (
     <section>
       <div className="container">
-        <div className={cn("hidden", error && "block")}>
-          Sorry... We found nothing. Please change your filters
-        </div>
-        <div className={cn("hidden", isLoading && "block")}>Loading...</div>
+        {error && <div>Sorry... We found nothing. :(</div>}
+        {isLoading && <div>Loading...</div>}
 
         <Grid
-          className={cn(error && "hidden", isFetching && "opacity-25")}
-          handler1={toggleFavoriteCharacter}
-          handler2={navigateToCharacterPage}
+          key="grid"
+          className={cn({ "opacity-25": isFetching, hidden: error })}
         >
-          {characters.map((item) => (
-            <Card
-              key={item.id}
-              item={item}
-              isInFavorite={isInFavorites(item.id)}
-              canInteract={user !== null}
-            />
-          ))}
+          {characters.map((item) =>
+            user ? (
+              <Favoritable key={item.id} id={item.id}>
+                <Card item={item}>
+                  <Card.Actions>
+                    <Link to={`/characters/${item.id}`}>
+                      <Button variant="secondary" className="w-full uppercase">
+                        Read More
+                      </Button>
+                    </Link>
+                  </Card.Actions>
+                </Card>
+              </Favoritable>
+            ) : (
+              <Card key={item.id} item={item} />
+            )
+          )}
         </Grid>
       </div>
     </section>
