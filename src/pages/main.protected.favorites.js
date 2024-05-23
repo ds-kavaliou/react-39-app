@@ -1,53 +1,41 @@
-import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
-import { cn } from "src/lib";
+import { Button } from "src/components";
 
-import { selectFavoriteIds, remove, add } from "src/features/favorites/slice";
+import { selectFavoriteIds } from "src/features/favorites/slice";
+import { Favoritable } from "src/features/favorites/components";
+
 import { useGetManyByIdQuery } from "src/features/characters/api";
 import { Grid, Card } from "src/features/characters/components";
-import { selectCurrentUser } from "src/features/auth/slice";
 
 export function FavoritesPage() {
-  const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-  const favIds = useSelector(selectFavoriteIds);
-
-  const user = useSelector(selectCurrentUser);
-
-  const { data: characters = [], isLoading } = useGetManyByIdQuery(favIds);
-
-  const isInFavorites = useCallback((id) => favIds.includes(id), [favIds]);
-
-  const toggleFavoriteCharacter = useCallback(
-    (id) => (isInFavorites(id) ? dispatch(remove(id)) : dispatch(add(id))),
-    [dispatch, isInFavorites]
-  );
-
-  const navigateToCharacterPage = useCallback(
-    (id) => navigate(`/characters/${id}`),
-    [navigate]
-  );
+  const favorites = useSelector(selectFavoriteIds);
+  const {
+    data: characters = [],
+    isLoading,
+    error,
+  } = useGetManyByIdQuery(favorites);
 
   return (
     <section>
       <div className="container">
-        <div className={cn("hidden", isLoading && "block")}>Loading...</div>
+        {error && <div>Something went wrong. :(</div>}
+        {isLoading && <div>Loading...</div>}
 
-        <Grid
-          className={cn(isLoading && "hidden")}
-          handler1={toggleFavoriteCharacter}
-          handler2={navigateToCharacterPage}
-        >
+        <Grid key="grid">
           {characters.map((item) => (
-            <Card
-              key={item.id}
-              item={item}
-              isInFavorite={isInFavorites(item.id)}
-              canInteract={user !== null}
-            />
+            <Favoritable key={item.id} id={item.id}>
+              <Card item={item}>
+                <Card.Actions>
+                  <Link to={`/characters/${item.id}`}>
+                    <Button variant="secondary" className="w-full uppercase">
+                      Read More
+                    </Button>
+                  </Link>
+                </Card.Actions>
+              </Card>
+            </Favoritable>
           ))}
         </Grid>
       </div>
