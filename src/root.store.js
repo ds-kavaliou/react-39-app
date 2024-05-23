@@ -1,18 +1,25 @@
-import { configureStore, isAnyOf } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
+import {
+  configureStore,
+  createListenerMiddleware,
+  isAnyOf,
+} from "@reduxjs/toolkit";
 
 import { storage } from "src/lib";
 
 import charactersApi from "src/features/characters/api";
 
-import favSlice, {
-  listener as favListener,
-} from "src/features/favorites/slice";
+import favSlice, { add, init, remove } from "src/features/favorites/slice";
 import { repository as favRepository } from "src/features/favorites/repository";
 
-import authSlice, { listener as authListener } from "src/features/auth/slice";
+import authSlice, {
+  clearCurrentUser,
+  setCurrentUser,
+} from "src/features/auth/slice";
 import { repository as authRepository } from "src/features/auth/repository";
 import { STORAGE_AUTH_USER_KEY } from "./features/auth/consts";
+
+const appListener = createListenerMiddleware();
 
 const store = configureStore({
   reducer: {
@@ -23,10 +30,13 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware()
       .concat(charactersApi.middleware)
-      .prepend(authListener.middleware)
-      .prepend(favListener.middleware);
+      .prepend(appListener.middleware);
   },
 });
+
+export function StoreProvider({ children }) {
+  return <Provider store={store}>{children}</Provider>;
+}
 
 /**
  * Read cached user and set it as current
@@ -42,40 +52,38 @@ authRepository.me().then((user) => {
  * Listen authentication change
  */
 
-authListener.startListening({
-  matcher: isAnyOf(
-    authSlice.actions.setCurrentUser,
-    authSlice.actions.clearCurrentUser
-  ),
-  effect: (_, { getState }) => {
-    const user = getState().auth.user;
-
-    if (user) {
-      const favorites = favRepository.getFavoritesByUserId(user.id);
-      store.dispatch(favSlice.actions.init(favorites));
-    } else {
-      store.dispatch(favSlice.actions.init([]));
-    }
-
-    storage.set(STORAGE_AUTH_USER_KEY, user);
-  },
-});
+setupAuthenticationListener(appListener.startListening);
 
 /**
- * Listen favorite actions and
- * save current state in localStorrage
+ * Listen favorite changes and save localStorrage
  */
+setupChangeFavoritesListener(appListener.startListening);
 
-favListener.startListening({
-  matcher: isAnyOf(favSlice.actions.add, favSlice.actions.remove),
-  effect: (_, { getState }) => {
-    const user = getState().auth.user;
-    if (user) {
-      favRepository.saveFavoritesByUserId(user.id, getState().favorites);
-    }
-  },
-});
+function setupAuthenticationListener(start) {
+  start({
+    matcher: isAnyOf(setCurrentUser, clearCurrentUser),
+    effect: (_, { getState, dispatch }) => {
+      const user = getState().auth.user;
+      if (user) {
+        const favorites = favRepository.getFavoritesByUserId(user.id);
+        dispatch(init(favorites));
+      } else {
+        dispatch(init([]));
+      }
 
-export function StoreProvider({ children }) {
-  return <Provider store={store}>{children}</Provider>;
+      storage.set(STORAGE_AUTH_USER_KEY, user);
+    },
+  });
+}
+
+function setupChangeFavoritesListener(start) {
+  start({
+    matcher: isAnyOf(add, remove),
+    effect: (_, { getState }) => {
+      const user = getState().auth.user;
+      if (user) {
+        favRepository.saveFavoritesByUserId(user.id, getState().favorites);
+      }
+    },
+  });
 }
