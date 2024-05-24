@@ -4,11 +4,13 @@ import { useGetByIdQuery } from "src/features/characters/api";
 
 export function CharacterPage() {
   const res = useParams();
-  const {currentData} = useGetByIdQuery(res.id);
+  const {currentData, isLoading} = useGetByIdQuery(res.id);
+  console.log(currentData, isLoading);
 
-  if(currentData) {
+
     return (
       <section>
+      {isLoading ? (<div className="container">Loading...</div>) : (
           <div className="container rounded-2xl border-solid border-2 flex h-96 flex items-center bg-gradient-to-r from-green-500 to-green-100">
           <img src={currentData.image} className="h-[350px] ml-[15px] border-neutral-950 border-2 rounded-2xl" alt="charachter"/>
           <div className="flex h-[100%] ml-[30px] items-center">
@@ -30,6 +32,7 @@ export function CharacterPage() {
             </section>
           </div>
         </div>
-      </section>);
-  }
+      )}
+      </section>
+    );
 }
