@@ -5,8 +5,14 @@ const slice = createSlice({
     initialState: [],
     reducers: {
         addHistoryElement: (state, action) => {
-            state.push(action.payload);
+            state.unshift(action.payload);
         },
+        removeHistoryElement: (state, action) => {
+            return state.filter((id) => id !== action.payload);
+            },
+        clearHistory: (state) => {
+            state.entries = [];
+            },
         initHistoryElement: (state, action) => {
             return action.payload ?? state;
         }, 
@@ -15,8 +21,6 @@ const slice = createSlice({
 
 export default slice;
 
-export const { addHistoryElement, initHistoryElement } = slice.actions;
+export const { addHistoryElement, removeHistoryElement, clearHistory, initHistoryElement} = slice.actions;
 
-export const selectHistoryIds = (state) => state.history;
-export const selectIsInHistory = (id) => (state) =>
-  state.history.includes(id);
+export const selectUserHistory = (state) => state.history;

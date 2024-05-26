@@ -1,46 +1,34 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { selectHistoryIds} from "src/features/history/slice";
-import { History } from "src/features/history/components";
+import { HistoryEntry } from "src/features/history/components";
+import { format } from "src/features/history/config";
 
-import { Favoritable } from "src/features/favorites/components";
-
-import { useGetManyByIdQuery } from "src/features/characters/api";
-import { Grid, Card } from "src/features/characters/components";
+import { selectUserHistory } from "src/features/history/slice";
 
 export function HistoryPage() {
-  const history = useSelector(selectHistoryIds);
-  const {
-    data: characters = [],
-    isLoading,
-    error,
-  } = useGetManyByIdQuery(history);
+  const entries = useSelector(selectUserHistory); 
 
   return (
     <section>
       <div className="container">
-        {error && <div>Something went wrong. :(</div>}
-        {isLoading && <div>Loading...</div>}
-
-        <Grid key="grid">
-          {characters.map((item) => (
-            <Favoritable key={item.id} id={item.id}>
-              <Card item={item}>
-                <Card.Actions>
-                  <Link to={`/characters/${item.id}`}>
-                    <History id={item.id} textContent={'Read More'}>
-                    </History>
-                  </Link>
-                </Card.Actions>
-              </Card>
-            </Favoritable>
-          ))}
-        </Grid>
+        {entries.map(({ id, timestamp, payload}, i) => (
+          <div key={id}>
+            <HistoryEntry id={id}>
+              <div>{i + 1}</div>
+              <div>{format (new Date (timestamp))}</div>
+              <Link to={`/characters/${payload.id}`}>
+                <div>{payload.name}</div>
+              </Link>
+            </HistoryEntry>
+          </div>
+        ))}
       </div>
-    </section>
+  </section>
   );
 }
+
+ 
 
 
 

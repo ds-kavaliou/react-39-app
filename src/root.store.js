@@ -7,12 +7,14 @@ import {
 
 import { storage } from "src/lib";
 
+import { crypto } from "src/lib";
+
 import charactersApi from "src/features/characters/api";
 
 import favSlice, { add, init, remove } from "src/features/favorites/slice";
 import { repository as favRepository } from "src/features/favorites/repository";
 
-import historySlice, { addHistoryElement, initHistoryElement } from "src/features/history/slice";
+import historySlice, { initHistoryElement } from "src/features/history/slice";
 import {repository as historyRepository} from "src/features/history/repository";
 
 import authSlice, {
@@ -101,13 +103,27 @@ function setupChangeFavoritesListener(start) {
 }
 
 function setupHistoryListener(start) {
+  const { addHistoryElement, removeHistoryElement, clearHistory } = historySlice.actions;
   start({
-    matcher: isAnyOf(addHistoryElement),
+    matcher: charactersApi.endpoints.getById.matchFulfilled,
+    effect: ({ payload }, { dispatch }) => {
+      const timestamp = new Date().toISOString();
+      const entry = { id: crypto.uuid(), timestamp, payload };
+
+      dispatch(addHistoryElement(entry));
+    },
+  });
+
+  start({
+    matcher: isAnyOf(addHistoryElement, removeHistoryElement, clearHistory),
     effect: (_, { getState }) => {
       const user = getState().auth.user;
       if (user) {
-        historyRepository.saveHistoryByUserId(user.id, getState().history);
-      }
-    }
-  })
+        historyRepository.saveHistoryByUserId(
+        user.id,
+        getState().history
+      );}
+    },
+  });
 }
+  
