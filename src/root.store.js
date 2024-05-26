@@ -12,6 +12,9 @@ import charactersApi from "src/features/characters/api";
 import favSlice, { add, init, remove } from "src/features/favorites/slice";
 import { repository as favRepository } from "src/features/favorites/repository";
 
+import historySlice, { addHistoryElement, initHistoryElement } from "src/features/history/slice";
+import {repository as historyRepository} from "src/features/history/repository";
+
 import authSlice, {
   clearCurrentUser,
   setCurrentUser,
@@ -26,6 +29,7 @@ const store = configureStore({
     [charactersApi.reducerPath]: charactersApi.reducer,
     [favSlice.reducerPath]: favSlice.reducer,
     [authSlice.reducerPath]: authSlice.reducer,
+    [historySlice.reducerPath]: historySlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware()
@@ -59,6 +63,11 @@ setupAuthenticationListener(appListener.startListening);
  */
 setupChangeFavoritesListener(appListener.startListening);
 
+/**
+ * Listen history changes and save localStorrage
+ */
+setupHistoryListener(appListener.startListening);
+
 function setupAuthenticationListener(start) {
   start({
     matcher: isAnyOf(setCurrentUser, clearCurrentUser),
@@ -66,9 +75,12 @@ function setupAuthenticationListener(start) {
       const user = getState().auth.user;
       if (user) {
         const favorites = favRepository.getFavoritesByUserId(user.id);
+        const history = historyRepository.getHistoryByUserId(user.id);
         dispatch(init(favorites));
+        dispatch(initHistoryElement(history));
       } else {
         dispatch(init([]));
+        dispatch(initHistoryElement([]));
       }
 
       storage.set(STORAGE_AUTH_USER_KEY, user);
@@ -86,4 +98,16 @@ function setupChangeFavoritesListener(start) {
       }
     },
   });
+}
+
+function setupHistoryListener(start) {
+  start({
+    matcher: isAnyOf(addHistoryElement),
+    effect: (_, { getState }) => {
+      const user = getState().auth.user;
+      if (user) {
+        historyRepository.saveHistoryByUserId(user.id, getState().history);
+      }
+    }
+  })
 }

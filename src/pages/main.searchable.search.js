@@ -1,13 +1,14 @@
 import { useSelector } from "react-redux";
 import { Link, useRouteLoaderData } from "react-router-dom";
 
-import { Button } from "src/components";
 import { cn } from "src/lib";
 
 import { Card, Grid } from "src/features/characters/components";
 import { useSearchCharactersQuery } from "src/features/characters/api";
 
 import { Favoritable } from "src/features/favorites/components";
+
+import { History } from "src/features/history/components"
 
 import { selectCurrentUser } from "src/features/auth/slice";
 
@@ -37,9 +38,8 @@ export function SearchPage() {
                 <Card item={item}>
                   <Card.Actions>
                     <Link to={`/characters/${item.id}`}>
-                      <Button variant="secondary" className="w-full uppercase">
-                        Read More
-                      </Button>
+                      <History id={item.id} textContent={'Read More'}>
+                      </History>
                     </Link>
                   </Card.Actions>
                 </Card>
