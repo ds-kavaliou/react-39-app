@@ -5,7 +5,7 @@ export function Icon({ className, name, ...props }) {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      className={cn("h-6 w-6", className)}
+      className={cn("h-6 w-6 pointer-events-none", className)}
       {...props}
     >
       <use href={`/icons/sprite.svg#${name}`} />

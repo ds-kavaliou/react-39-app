@@ -1,6 +1,9 @@
+import { useSelector } from "react-redux";
 import { Outlet, Navigate } from "react-router-dom";
 
+import { selectCurrentUser } from "src/features/auth/slice";
+
 export function ProtectedLayout() {
-  const isAuthenticated = true;
-  return isAuthenticated ? <Outlet /> : <Navigate to="signin" />;
+  const user = useSelector(selectCurrentUser);
+  return user ? <Outlet /> : <Navigate to="signin" />;
 }
